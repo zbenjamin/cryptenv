@@ -1,5 +1,6 @@
 import click
 import subprocess
+import plistlib
 
 @click.group()
 def cli():
@@ -11,10 +12,14 @@ def cli():
                                             allow_dash=False))
 def create(size, filename):
     """Create a new encrypted environment"""
-    subprocess.check_call(["hdiutil", "create",
-                           "-fs", "apfs",
-                           "-megabytes", str(size),
-                           filename])
+    output = subprocess.check_output(["hdiutil", "create",
+                                      "-plist",
+                                      "-fs", "apfs",
+                                      "-megabytes", str(size),
+                                      filename])
+    structured_out = plistlib.loads(output)
+    created_file = structured_out[0]
+    click.echo("Created image: {}".format(created_file))
 
 if __name__ == '__main__':
     cli()
