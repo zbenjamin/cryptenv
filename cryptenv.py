@@ -15,6 +15,7 @@ def create(size, filename):
     output = subprocess.check_output(["hdiutil", "create",
                                       "-plist",
                                       "-fs", "apfs",
+                                      "-volname", "cryptenv",
                                       "-megabytes", str(size),
                                       filename])
     structured_out = plistlib.loads(output)
