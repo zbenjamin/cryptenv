@@ -20,7 +20,24 @@ def create(size, filename):
                                       filename])
     structured_out = plistlib.loads(output)
     created_file = structured_out[0]
-    click.echo("Created image: {}".format(created_file))
+    click.echo("Created encrypted environment: {}".format(created_file))
+
+@cli.command()
+@click.argument("filename", type=click.Path(exists=True, dir_okay=False,
+                                            readable=True, allow_dash=False))
+def mount(filename):
+    """Mount an encrypted environment without entering it"""
+    output = subprocess.check_output(["hdiutil", "attach",
+                                      "-plist",
+                                      filename])
+    structured_out = plistlib.loads(output)
+    mountpoint = None
+    for elem in structured_out['system-entities']:
+        if "mount-point" in elem:
+            mountpoint = elem['mount-point']
+            break
+
+    click.echo("Mounted encrypted environment at {}".format(mountpoint))
 
 if __name__ == '__main__':
     cli()
