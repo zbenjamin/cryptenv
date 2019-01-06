@@ -12,12 +12,23 @@ def cli():
                                             allow_dash=False))
 def create(size, filename):
     """Create a new encrypted environment"""
+    passphrase = click.prompt("Passphrase for encrypted environment",
+                              hide_input=True,
+                              confirmation_prompt=True)
+
+    # XXX: don't assume UTF-8
+    passphrase = bytes(passphrase, 'utf8')
+    passphrase += b'\0'
+
     output = subprocess.check_output(["hdiutil", "create",
                                       "-plist",
+                                      "-encryption",
+                                      "-stdinpass",
                                       "-fs", "apfs",
                                       "-volname", "cryptenv",
                                       "-megabytes", str(size),
-                                      filename])
+                                      filename],
+                                     input=passphrase)
     structured_out = plistlib.loads(output)
     created_file = structured_out[0]
     click.echo("Created encrypted environment: {}".format(created_file))
