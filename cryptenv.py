@@ -2,6 +2,12 @@ import click
 import subprocess
 import plistlib
 
+def format_hdiutil_passphrase_stdin(string):
+    # XXX: don't assume UTF-8
+    ret = bytes(string, 'utf8')
+    ret += b'\0'
+    return ret
+
 @click.group()
 def cli():
     """Create and use encrypted environments"""
@@ -16,10 +22,6 @@ def create(size, filename):
                               hide_input=True,
                               confirmation_prompt=True)
 
-    # XXX: don't assume UTF-8
-    passphrase = bytes(passphrase, 'utf8')
-    passphrase += b'\0'
-
     output = subprocess.check_output(["hdiutil", "create",
                                       "-plist",
                                       "-encryption",
@@ -28,7 +30,7 @@ def create(size, filename):
                                       "-volname", "cryptenv",
                                       "-megabytes", str(size),
                                       filename],
-                                     input=passphrase)
+                                     input=format_hdiutil_passphrase_stdin(passphrase))
     structured_out = plistlib.loads(output)
     created_file = structured_out[0]
     click.echo("Created encrypted environment: {}".format(created_file))
@@ -38,9 +40,14 @@ def create(size, filename):
                                             readable=True, allow_dash=False))
 def mount(filename):
     """Mount an encrypted environment without entering it"""
+    passphrase = click.prompt("Passphrase for encrypted environment",
+                              hide_input=True)
+
     output = subprocess.check_output(["hdiutil", "attach",
                                       "-plist",
-                                      filename])
+                                      "-stdinpass",
+                                      filename],
+                                     input=format_hdiutil_passphrase_stdin(passphrase))
     structured_out = plistlib.loads(output)
     mountpoint = None
     for elem in structured_out['system-entities']:
