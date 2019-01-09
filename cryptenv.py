@@ -51,7 +51,7 @@ def mount(filename):
     structured_out = plistlib.loads(output)
     mountpoint = None
     for elem in structured_out['system-entities']:
-        if "mount-point" in elem:
+        if 'mount-point' in elem:
             mountpoint = elem['mount-point']
             break
 
