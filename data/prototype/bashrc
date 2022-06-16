@@ -1,0 +1,13 @@
+# -*- mode: shell-script -*-
+unset HISTFILE
+unset PROMPT_COMMAND
+
+CRYPTENV=/Volumes/cryptenv
+cd $CRYPTENV
+export GNUPGHOME="$CRYPTENV/gnupg"
+
+bldred='\[\e[1;31m\]' # Red
+txtrst='\[\e[0m\]'    # Text Reset
+
+export PS1="${bldred}$ ${txtrst}"
+# start-tor-browser &> /dev/null &
