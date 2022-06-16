@@ -1,0 +1,1 @@
+pkill -f 'gpg-agent --homedir /Volumes/cryptenv/gnupg' || /bin/true

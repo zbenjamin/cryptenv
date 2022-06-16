@@ -1,6 +1,7 @@
 import click
 import subprocess
 import plistlib
+import os
 
 def format_hdiutil_passphrase_stdin(string):
     # XXX: don't assume UTF-8
@@ -91,6 +92,9 @@ def shell(ctx, filename):
     mount_point = ctx.forward(mount)
     # XXX: don't assume the mount point
     subprocess.call(["/bin/bash", "--rcfile", "/Volumes/cryptenv/bashrc", "-i"])
+    cryptenv_logout_file = "/Volumes/cryptenv/cryptenv_logout"
+    if os.path.exists(cryptenv_logout_file):
+        subprocess.call(["/bin/bash", cryptenv_logout_file])
     ctx.invoke(unmount, mount_point=mount_point)
 
 if __name__ == '__main__':
